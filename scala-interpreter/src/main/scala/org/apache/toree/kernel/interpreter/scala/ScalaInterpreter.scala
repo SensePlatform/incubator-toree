@@ -191,6 +191,23 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
      lines match {
        case Nil => results
        case x :: xs =>
+
+         if(xs.length > 0 ) {
+           if (isComplete(xs.head)._1 == "invalid") {
+             if (isComplete(x)._1 == "complete") {
+               var head = x
+               var tail = xs
+               while (tail.length > 0) {
+                 head += "\n" + tail.head
+                 tail = tail.drop(1)
+                 if (isComplete(head)._1 == "complete") {
+                   return interpretRec(head :: tail, silent, results)
+                 }
+               }
+             }
+           }
+         }
+
          val output = interpretLine(x)
 
          output._1 match {
