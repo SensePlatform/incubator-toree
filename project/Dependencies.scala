@@ -22,15 +22,15 @@ object Dependencies {
 
   // Libraries
 
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.4.17" // Apache v2
-  val akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % "2.4.17" // Apache v2
-  val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % "2.4.17" // Apache v2
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.4" // Apache v2
+  val akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % "2.3.4" // Apache v2
+  val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % "2.3.4" // Apache v2
 
   val clapper = "org.clapper" %% "classutil" % "1.0.12" // BSD 3-clause license, used for detecting plugins
 
   val commonsExec = "org.apache.commons" % "commons-exec" % "1.3" // Apache v2
 
-  val config = "com.typesafe" % "config" % "1.3.0" // Apache v2
+  val config = "com.typesafe" % "config" % "1.2.1" // Apache v2
 
   val coursier = "io.get-coursier" %% "coursier" % "1.0.0-M15-1" // Apache v2
   val coursierCache = "io.get-coursier" %% "coursier-cache" % "1.0.0-M15-1" // Apache v2

@@ -138,6 +138,6 @@ class SparkKernelClient(
 
   def shutdown() = {
     logger.info("Shutting down client")
-    actorSystem.terminate()
+    actorSystem.shutdown()
   }
 }

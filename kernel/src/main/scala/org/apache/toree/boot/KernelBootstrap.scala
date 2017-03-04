@@ -145,7 +145,7 @@ class KernelBootstrap(config: Config) extends LogLike {
     )
 
     logger.info("Shutting down actor system")
-    Try(actorSystem.terminate()).failed.foreach(
+    Try(actorSystem.shutdown()).failed.foreach(
       logger.error("Failed to shutdown actor system", _: Throwable)
     )
 
@@ -157,8 +157,8 @@ class KernelBootstrap(config: Config) extends LogLike {
    */
   def waitForTermination() = {
     logger.debug("Waiting for actor system to terminate")
-//    actorSystem.awaitTermination()
-    Await.result(actorSystem.whenTerminated, Duration.Inf)
+    actorSystem.awaitTermination()
+    //Await.result(actorSystem.whenTerminated, Duration.Inf)
 
     this
   }
