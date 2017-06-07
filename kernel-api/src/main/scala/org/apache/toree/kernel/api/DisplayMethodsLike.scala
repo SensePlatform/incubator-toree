@@ -43,8 +43,15 @@ trait DisplayMethodsLike {
   def javascript(data: String): Unit = content("application/javascript", data)
 
   /**
+    * Send the full bundle of display options to the client
+    * @param bundle The content to send for display
+    */
+  def fullBundle(bundle: Map[String, String]): Unit
+
+  /**
    * Sends a clear-output message to client
    * @param wait if true, client waits for next display_data to clear
    */
   def clear(wait: Boolean = false): Unit
+
 }

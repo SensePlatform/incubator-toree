@@ -66,6 +66,9 @@ object Dependencies {
 
   val springCore = "org.springframework" % "spring-core" % "4.1.1.RELEASE"// Apache v2
 
+  val displayers = 	"com.github.jupyter" % "jvm-repr" % "0.1.0"
+
+
   // Projects
 
   val sparkAll = Def.setting{

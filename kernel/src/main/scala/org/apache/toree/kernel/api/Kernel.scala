@@ -43,6 +43,9 @@ import scala.language.dynamics
 import scala.reflect.runtime.universe._
 import scala.util.{DynamicVariable, Try}
 import org.apache.toree.plugins.SparkReady
+import jupyter.Displayers
+import scala.collection.JavaConverters._
+
 
 /**
  * Represents the main kernel API to be used for interaction.
@@ -152,6 +155,12 @@ class Kernel (
           (false, errMsg)
       }
     }).getOrElse((false, "Error!"))
+  }
+
+  def displayData(replObject: Any): Unit = {
+    val outputMap = Displayers.display(replObject)
+    val scalaMap = outputMap.asScala.toMap
+    display().fullBundle(scalaMap)
   }
 
   /**
@@ -341,6 +350,7 @@ class Kernel (
 
   override def createSparkContext(conf: SparkConf): SparkContext = {
     val sconf = createSparkConf(conf)
+
     val _sparkSession = SparkSession.builder.config(sconf).getOrCreate()
 
     val sparkMaster = sconf.getOption("spark.master").getOrElse("not_set")
