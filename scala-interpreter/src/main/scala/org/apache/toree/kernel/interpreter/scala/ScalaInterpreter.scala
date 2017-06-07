@@ -51,7 +51,7 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
    private[scala] var taskManager: TaskManager = _
 
   /** Since the ScalaInterpreter can be started without a kernel, we need to ensure that we can compile things.
-      Adding in the default classpaths as needed.
+    * Adding in the default classpaths as needed.
     */
   def appendClassPath(settings: Settings): Settings = {
     settings.classpath.value = buildClasspath(_thisClassloader)
@@ -90,6 +90,9 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
      bindSparkSession()
      bindSparkContext()
      defineImplicits()
+
+     //TODO: if, some display flag:
+     defineDisplayers()
 
      this
    }
@@ -131,6 +134,7 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
    protected def bindKernelVariable(kernel: KernelLike): Unit = {
      logger.warn(s"kernel variable: ${kernel}")
+
 //     InterpreterHelper.kernelLike = kernel
 //     interpret("import org.apache.toree.kernel.interpreter.scala.InterpreterHelper")
 //     interpret("import org.apache.toree.kernel.api.Kernel")
@@ -316,6 +320,45 @@ class ScalaInterpreter(private val config:Config = ConfigFactory.load) extends I
 
      }
    }
+
+  def defineDisplayers(): Unit = {
+    val code =
+      """
+        |import jupyter.Displayer
+        |import jupyter.Displayers
+        |import scala.collection.JavaConverters._
+        |import org.apache.spark.sql.DataFrame
+        |import play.api.libs.json.{JsObject, Json}
+        |
+        |Displayers.register(classOf[DataFrame],
+        |    new Displayer[DataFrame] {
+        |      override def display(frame: DataFrame): java.util.Map[String, String] = {
+        |				val schema = frame.columns
+        |				val dataJson = frame.select("*").toJSON
+        |        val thHTML = schema.map(col => {"<th>"+col+"</th>"}).foldLeft("")(_+_)
+        |        val trHTML = frame.rdd.map(row => {
+        |            val tr = row.toSeq.map(entry => {
+        |              val entryString = if (entry == null) "" else entry.toString
+        |            "<td>"+entryString+"</td>"}).foldLeft("")(_+_)
+        |            "<tr>"+tr+"</tr>"}).collect().foldLeft("")(_+_)
+        |        val frameHTML = "<table><tr>"+thHTML.toString+"</tr>"+trHTML.toString+"</table>"
+        |        Map(
+        |          "text/plain" -> frame.toString(),
+        |          "text/html" ->  frameHTML,
+        |					"application/vnd.dataresource+json" ->
+        |					 JsObject(Seq(
+        |						"schema" -> JsObject(Seq("fields" -> Json.toJson(schema))),
+        |             "data" -> Json.toJson(dataJson.collect())
+        |					 )).toString()
+        |        ).asJava
+        |      }
+        |    })
+        |
+        |def display(replObject: Any): Unit = { kernel.displayData(replObject) }
+        |
+      """.stripMargin
+    doQuietly(interpret(code))
+  }
 
   def defineImplicits(): Unit = {
     val code =

@@ -18,6 +18,7 @@
 package org.apache.toree.kernel.api
 
 import org.apache.toree.kernel.protocol.v5
+import org.apache.toree.kernel.protocol.v5.MIMEType.MIMEType
 import org.apache.toree.kernel.protocol.v5.{KMBuilder, KernelMessage}
 import org.apache.toree.kernel.protocol.v5.kernel.ActorLoader
 
@@ -36,6 +37,17 @@ class DisplayMethods(
 
   override def content(mimeType: String, data: String): Unit = {
     val displayData = v5.content.DisplayData("user", Map(mimeType -> data), Map())
+
+    val kernelMessage = kmBuilder
+      .withIds(Seq(v5.content.DisplayData.toTypeString.getBytes))
+      .withHeader(v5.content.DisplayData.toTypeString)
+      .withContentString(displayData).build
+
+    actorLoader.load(v5.SystemActorType.KernelMessageRelay) ! kernelMessage
+  }
+
+  override def fullBundle(bundle: Map[String, String]): Unit = {
+    val displayData = v5.content.DisplayData("user", bundle.asInstanceOf[Map[MIMEType, String]], Map())
 
     val kernelMessage = kmBuilder
       .withIds(Seq(v5.content.DisplayData.toTypeString.getBytes))
